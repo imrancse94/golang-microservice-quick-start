@@ -1,0 +1,7 @@
+{
+  "listen": "AAA-AAA-AAA {{.amount}} AAA ",
+  "person": {
+    "one": "person",
+    "other": "people"
+  }
+}
