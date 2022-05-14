@@ -1,1 +1,1 @@
-# Route Based Golang quick start for microservice
+# Route Based Golang quick start for microservice as rest api
