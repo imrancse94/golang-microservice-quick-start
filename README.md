@@ -7,3 +7,4 @@
 5. Standard common JSON response.
 6. Localization added.
 7. Cache added (Redis)
+8. Maintain env like laravel.
