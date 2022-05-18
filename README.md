@@ -5,3 +5,4 @@
 3. Middleware feature added.
 4. Separate business logic layer.
 5. Standard common JSON response.
+6. Localization added.
