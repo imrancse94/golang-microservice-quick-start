@@ -2,43 +2,57 @@ package routes
 
 import (
 	"github.com/gorilla/mux"
+	"go.quick.start/app/requests"
+	"go.quick.start/middleware"
 	"go.quick.start/register"
 )
 
 var AppRouter = register.HTTPRouter{
 	Route: []register.Route{
 		{
-			Name:        "home",
-			Path:        "/",
-			Action:      "UserController@Index",
-			Method:      "GET",
-			Description: "Main route",
-			Middleware:  []register.Middleware{},
-		},
-		{
-			Name:        "users",
-			Path:        "/users",
-			Action:      "UserController@RegisterUser",
+			Name:        "token",
+			Path:        "/token",
+			Action:      "UserController@Login",
 			Method:      "POST",
-			Description: "Insert new user",
-			Middleware:  []register.Middleware{},
+			Validation:  &requests.Credential{},
+			Description: "Test user authentication",
 		},
 	},
 	Groups: []register.Group{
 		{
-			Name:   "admin",
-			Prefix: "/admin",
+			Name:       "admin",
+			Prefix:     "/user",
+			Middleware: []register.Middleware{middleware.Auth()},
 			Routes: []register.Route{
 				{
-					Name:        "test",
-					Path:        "/test",
-					Action:      "UserController@Login",
+					Name:        "home",
+					Path:        "/home",
+					Action:      "UserController@Index",
+					Method:      "GET",
+					Description: "Main route",
+				},
+				{
+					Name:        "users",
+					Path:        "/users",
+					Action:      "UserController@RegisterUser",
 					Method:      "POST",
+					Description: "Insert new user",
+				},
+				{
+					Name:        "auth-data",
+					Path:        "/auth-data",
+					Action:      "UserController@AuthData",
+					Method:      "GET",
 					Description: "Test user authentication",
-					Middleware:  []register.Middleware{},
+				},
+				{
+					Name:        "roles",
+					Path:        "/roles",
+					Action:      "RoleController@GetRole",
+					Method:      "GET",
+					Description: "Test user authentication",
 				},
 			},
-			Middleware: []register.Middleware{},
 		},
 	},
 }

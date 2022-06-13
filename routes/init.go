@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"go.quick.start/api"
 	"go.quick.start/app/controller"
 	"go.quick.start/application"
 	"go.quick.start/register"
@@ -48,13 +49,16 @@ func HandleSingleRoute(routes []register.Route, router *mux.Router) {
 			subRouter := mux.NewRouter()
 			subRouter.HandleFunc(route.Path, func(writer http.ResponseWriter, request *http.Request) {
 				if err := validateRequest(validation, request); err != nil {
-					writer.WriteHeader(http.StatusUnprocessableEntity)
-					_, _ = writer.Write([]byte(err.Error()))
-
+					responseData := api.Response{
+						Status:  api.Status("VALIDATION_ERROR"),
+						Message: api.StatusMessage("VALIDATION_ERROR"),
+						Data:    err,
+					}
+					api.ErrorResponse(responseData, writer)
 					return
 				}
 
-				executeControllerDirective(directive, writer, request, validation)
+				executeControllerDirective(directive, writer, request)
 			}).Methods(route.Method)
 
 			subRouter.Use(parseMiddleware(route.Middleware)...)
@@ -62,13 +66,16 @@ func HandleSingleRoute(routes []register.Route, router *mux.Router) {
 		} else {
 			router.HandleFunc(route.Path, func(writer http.ResponseWriter, request *http.Request) {
 				if err := validateRequest(validation, request); err != nil {
-					writer.WriteHeader(http.StatusUnprocessableEntity)
-					_, _ = writer.Write([]byte(err.Error()))
-
+					responseData := api.Response{
+						Status:  api.Status("VALIDATION_ERROR"),
+						Message: api.StatusMessage("VALIDATION_ERROR"),
+						Data:    err,
+					}
+					api.ErrorResponse(responseData, writer)
 					return
 				}
 
-				executeControllerDirective(directive, writer, request, validation)
+				executeControllerDirective(directive, writer, request)
 			}).Methods(route.Method)
 		}
 	}
@@ -87,13 +94,16 @@ func HandleGroups(groups []register.Group, router *mux.Router) {
 				fullPath := fmt.Sprintf("%s%s", group.Prefix, route.Path)
 				nestedRouter.HandleFunc(fullPath, func(writer http.ResponseWriter, request *http.Request) {
 					if err := validateRequest(validation, request); err != nil {
-						writer.WriteHeader(http.StatusUnprocessableEntity)
-						_, _ = writer.Write([]byte(err.Error()))
-
+						responseData := api.Response{
+							Status:  api.Status("VALIDATION_ERROR"),
+							Message: api.StatusMessage("VALIDATION_ERROR"),
+							Data:    err,
+						}
+						api.ErrorResponse(responseData, writer)
 						return
 					}
 
-					executeControllerDirective(directive, writer, request, validation)
+					executeControllerDirective(directive, writer, request)
 				}).Methods(route.Method)
 
 				nestedRouter.Use(parseMiddleware(route.Middleware)...)
@@ -101,13 +111,16 @@ func HandleGroups(groups []register.Group, router *mux.Router) {
 			} else {
 				subRouter.HandleFunc(route.Path, func(writer http.ResponseWriter, request *http.Request) {
 					if err := validateRequest(validation, request); err != nil {
-						writer.WriteHeader(http.StatusUnprocessableEntity)
-						_, _ = writer.Write([]byte(err.Error()))
-
+						responseData := api.Response{
+							Status:  api.Status("VALIDATION_ERROR"),
+							Message: api.StatusMessage("VALIDATION_ERROR"),
+							Data:    err,
+						}
+						api.ErrorResponse(responseData, writer)
 						return
 					}
 
-					executeControllerDirective(directive, writer, request, validation)
+					executeControllerDirective(directive, writer, request)
 				}).Methods(route.Method)
 			}
 		}
@@ -115,21 +128,18 @@ func HandleGroups(groups []register.Group, router *mux.Router) {
 		subRouter.Use(parseMiddleware(group.Middleware)...)
 	}
 }
-func executeControllerDirective(d []string, w http.ResponseWriter, r *http.Request, validation interface{}) {
 
+func executeControllerDirective(d []string, w http.ResponseWriter, r *http.Request) {
 	cc := GetControllerInterface(d, w, r)
-	method := reflect.ValueOf(cc).MethodByName(d[1]).Call([]reflect.Value{reflect.ValueOf(w), reflect.ValueOf(r)})
-	fmt.Println("method: ", method, d)
-	//controllerInstance := reflect.New(reflect.TypeOf(controller).Elem())
-	//controllerInstance.MethodByName(action).Call([]reflect.Value{reflect.ValueOf(w), reflect.ValueOf(r), reflect.ValueOf(validation)})
+	reflect.ValueOf(cc).MethodByName(d[1]).Call([]reflect.Value{reflect.ValueOf(w), reflect.ValueOf(r)})
 }
 
 func GetControllerInterface(directive []string, w http.ResponseWriter, r *http.Request) interface{} {
 	var result interface{}
 
-	//action := d[1]
 	controllers := register.ControllerRegister{
 		&controller.UserController{},
+		&controller.RoleController{},
 	}
 
 	for _, contr := range controllers {
@@ -152,7 +162,7 @@ func parseMiddleware(mwList []register.Middleware) []mux.MiddlewareFunc {
 
 	return midFunc
 }
-func validateRequest(data interface{}, r *http.Request) error {
+func validateRequest(data interface{}, r *http.Request) interface{} {
 	if data != nil {
 		if err := tool.DecodeJsonRequest(r, &data); err != nil {
 			return err

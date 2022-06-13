@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"go.quick.start/apiresponse"
+	"go.quick.start/api"
 	"golang.org/x/time/rate"
 	"net/http"
 )
@@ -21,8 +21,12 @@ func (RateLimiterMiddleware) Handle(next http.Handler) http.Handler {
 			return
 		}
 
-		apiresponse.ErrorResponse(http.StatusTooManyRequests, "E105", map[string]string{"message": "Too many requests"}, "Too many requests", w)
-		//http.Error(w, http.StatusText(429), http.StatusTooManyRequests)
+		responseData := api.Response{
+			Status:  "E001",
+			Message: "Too many requests",
+			Data:    "",
+		}
+		api.ErrorResponse(responseData, w) //http.Error(w, http.StatusText(429), http.StatusTooManyRequests)
 		//next.ServeHTTP(w, r)
 	})
 }

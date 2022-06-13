@@ -5,9 +5,9 @@ import (
 )
 
 // ValidateRequest incoming request
-func ValidateRequest(data interface{}) error {
+func ValidateRequest(data interface{}) interface{} {
 	if valid, err := govalidator.ValidateStruct(data); valid == false {
-		return err
+		return govalidator.ErrorsByField(err)
 	}
 
 	return nil
