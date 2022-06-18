@@ -2,14 +2,17 @@ package controller
 
 import (
 	"fmt"
+	"github.com/jinzhu/gorm"
 	"go.quick.start/Services"
 	"go.quick.start/api"
 	"go.quick.start/app/requests"
 	"go.quick.start/application"
+	"go.quick.start/models"
 	"net/http"
-	"os"
 	"strconv"
 )
+
+var DB *gorm.DB
 
 type UserController struct {
 	application.BaseController
@@ -46,20 +49,19 @@ func test() {
 
 func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	input := requests.LoginRequestToStruct(r)
-	token, userData, message := Services.Login(input)
+	userData, message := Services.Login(input)
 
-	if token != "" && message == "" {
-		expireTime, _ := strconv.Atoi(os.Getenv("JWT_EXPIRES_IN"))
-		data := AuthResponse{
-			Token:   token,
+	if userData != nil && message == "" {
+		//expireTime, _ := strconv.Atoi(os.Getenv("JWT_EXPIRES_IN"))
+		/*data := AuthResponse{
 			Expires: strconv.Itoa(expireTime * 60),
 			User:    userData,
-		}
+		}*/
 
 		responseData := api.Response{
 			Status:  api.Status("SUCCESS"),
 			Message: "Token generated successfully",
-			Data:    data,
+			Data:    userData,
 		}
 		api.SuccessRespond(responseData, w)
 		return
@@ -74,13 +76,13 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *UserController) AuthData(w http.ResponseWriter, r *http.Request) {
-	data := map[string]interface{}{
-		"name": "test",
-	}
+	id, _ := strconv.Atoi(r.Header.Get("auth_id"))
+	//user := models.GetUserById(id)
+	user := models.GetRolePageByUserId(id)
 	responseData := api.Response{
 		Status:  api.Status("SUCCESS"),
-		Message: "Token generated successfully",
-		Data:    data,
+		Message: user.Message,
+		Data:    user.Data,
 	}
 	api.SuccessRespond(responseData, w)
 }

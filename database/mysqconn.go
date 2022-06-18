@@ -6,6 +6,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/gommon/log"
 	"go.quick.start/config"
+	"go.quick.start/models"
 )
 
 // ConnectDB to sql database
@@ -16,7 +17,7 @@ func ConnectDB() *gorm.DB {
 	if err != nil {
 		log.Error(err)
 	}
-
+	db.AutoMigrate(&models.User{})
 	log.Info("Database connection successful")
 	return db
 }

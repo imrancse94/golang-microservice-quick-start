@@ -20,7 +20,7 @@ var AppRouter = register.HTTPRouter{
 	},
 	Groups: []register.Group{
 		{
-			Name:       "admin",
+			Name:       "user",
 			Prefix:     "/user",
 			Middleware: []register.Middleware{middleware.Auth()},
 			Routes: []register.Route{

@@ -1,21 +1,19 @@
 package Services
 
 import (
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/gommon/log"
 	"go.quick.start/app/requests"
 	"go.quick.start/models"
 	"golang.org/x/crypto/bcrypt"
-	"os"
-	"strconv"
-	"time"
 )
 
 // Token jwt Standard Claim Object
-type Token struct {
+/*type Token struct {
+	ID    uint   `json:"id"`
 	Email string `json:"email"`
+	Name  string `json:"name"`
 	jwt.StandardClaims
-}
+}*/
 
 // Create a dummy local db instance as a key value pair
 var userdb = map[string]string{
@@ -23,8 +21,8 @@ var userdb = map[string]string{
 }
 
 // Login user login function
-func Login(input requests.Credential) (string string, data interface{}, error string) {
-	expire, _ := strconv.ParseInt(os.Getenv("JWT_EXPIRES_IN"), 10, 64)
+func Login(input requests.Credential) (data interface{}, error string) {
+	//expire, _ := strconv.ParseInt(os.Getenv("JWT_EXPIRES_IN"), 10, 64)
 	user := models.GetUserByEmail(input.Email)
 	//hash, _ := HashPassword(input.Password)
 	//fmt.Println("user111", hash, user.Data.(models.User).Password, input.Password, CheckPasswordHash(input.Password, user.Data.(models.User).Password))
@@ -32,11 +30,13 @@ func Login(input requests.Credential) (string string, data interface{}, error st
 
 	// if user exist, verify the password
 	if !CheckPasswordHash(input.Password, user.Data.(models.User).Password) {
-		return "", user.Data, "Invalid email or password"
+		return user.Data, "Invalid email or password"
 	}
 	// Create a token object and add the Username and StandardClaims
-	expires := time.Now().Add(time.Duration(time.Duration(expire) * time.Minute)).Unix()
+	/*expires := time.Now().Add(time.Duration(time.Duration(expire) * time.Minute)).Unix()
 	var tokenClaim = Token{
+		ID:    user.Data.(models.User).ID,
+		Name:  user.Data.(models.User).Name,
 		Email: input.Email,
 		StandardClaims: jwt.StandardClaims{
 			// Enter expiration in milisecond
@@ -51,9 +51,21 @@ func Login(input requests.Credential) (string string, data interface{}, error st
 
 	if err != nil {
 		log.Fatal(err)
+	}*/
+
+	jwt := Jwt{}
+	token, err := jwt.CreateToken(user.Data.(models.User))
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	return tokenString, user.Data, ""
+	/*	data = []interface{}{
+			token,
+			user.Data,
+		}
+		fmt.Println("data", data)*/
+	//fmt.Println("data", token)
+	return token, ""
 }
 
 func HashPassword(password string) (string, error) {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"go.quick.start/api"
-	"go.quick.start/app/controller"
 	"go.quick.start/application"
 	"go.quick.start/register"
 	"go.quick.start/tool"
@@ -137,10 +136,7 @@ func executeControllerDirective(d []string, w http.ResponseWriter, r *http.Reque
 func GetControllerInterface(directive []string, w http.ResponseWriter, r *http.Request) interface{} {
 	var result interface{}
 
-	controllers := register.ControllerRegister{
-		&controller.UserController{},
-		&controller.RoleController{},
-	}
+	controllers := register.GetControllers()
 
 	for _, contr := range controllers {
 		controllerName := reflect.Indirect(reflect.ValueOf(contr)).Type().Name()

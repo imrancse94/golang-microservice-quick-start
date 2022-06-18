@@ -14,6 +14,14 @@ import (
 
 var validate *validator.Validate
 
+type AuthUser struct {
+	ID    int
+	Name  string
+	Email string
+}
+
+var user *AuthUser
+
 func main() {
 	godotenv.Load()
 	//cont := &controller.UserController{}

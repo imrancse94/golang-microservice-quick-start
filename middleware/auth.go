@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	"go.quick.start/Services"
 	"go.quick.start/api"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -30,6 +30,7 @@ func (AuthMiddleware) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		bearerToken := strings.Split(authHeader, " ")
+
 		//token := bearerToken[1]
 		if len(bearerToken) < 2 {
 			responseData := api.Response{
@@ -42,15 +43,9 @@ func (AuthMiddleware) Handle(next http.Handler) http.Handler {
 		} else {
 
 			signedToken := bearerToken[1]
-
-			token, err := jwt.Parse(signedToken, func(token *jwt.Token) (interface{}, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-				}
-
-				return []byte(os.Getenv("JWT_SECRET_KEY")), nil
-			})
-			//fmt.Println("jwtKey", err, token)
+			service := Services.Jwt{}
+			user, err := service.ValidateToken(signedToken)
+			//fmt.Println("user", user)
 			if err != nil {
 				responseData := api.Response{
 					Status:  "E001",
@@ -62,10 +57,10 @@ func (AuthMiddleware) Handle(next http.Handler) http.Handler {
 				//fmt.Fprintf(w, err.Error())
 			}
 
-			if token.Valid {
-				next.ServeHTTP(w, r)
-				return
-			}
+			r.Header.Set("auth_id", strconv.Itoa(user.ID))
+			r.Header.Set("email", user.Email)
+			next.ServeHTTP(w, r)
+			return
 		}
 		responseData := api.Response{
 			Status:  "E001",

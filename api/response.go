@@ -12,7 +12,11 @@ type Response struct {
 }
 
 func SuccessRespond(fields Response, writer http.ResponseWriter) {
+	if fields.Data == "" {
+		fields.Data = []string{}
+	}
 	message, err := json.MarshalIndent(fields, "", " ")
+
 	if err != nil {
 		//An error occurred processing the json
 		writer.WriteHeader(http.StatusInternalServerError)
@@ -28,6 +32,9 @@ func SuccessRespond(fields Response, writer http.ResponseWriter) {
 
 func ErrorResponse(fields Response, writer http.ResponseWriter) {
 	//Create a new map and fill it
+	if fields.Data == "" {
+		fields.Data = []string{}
+	}
 	data, err := json.MarshalIndent(fields, "", " ")
 
 	if err != nil {
