@@ -77,8 +77,7 @@ func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
 
 func (c *UserController) AuthData(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(r.Header.Get("auth_id"))
-	//user := models.GetUserById(id)
-	user := models.GetRolePageByUserId(id)
+	user := models.GetUserById(id)
 	responseData := api.Response{
 		Status:  api.Status("SUCCESS"),
 		Message: user.Message,
