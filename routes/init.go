@@ -50,8 +50,8 @@ func HandleSingleRoute(routes []register.Route, router *mux.Router) {
 				if err := validateRequest(validation, request); err != nil {
 					responseData := api.Response{
 						Status:  api.Status("VALIDATION_ERROR"),
-						Message: api.StatusMessage("VALIDATION_ERROR"),
-						Data:    err,
+						Message: err.(error).Error(),
+						Data:    "",
 					}
 					api.ErrorResponse(responseData, writer)
 					return
@@ -67,8 +67,8 @@ func HandleSingleRoute(routes []register.Route, router *mux.Router) {
 				if err := validateRequest(validation, request); err != nil {
 					responseData := api.Response{
 						Status:  api.Status("VALIDATION_ERROR"),
-						Message: api.StatusMessage("VALIDATION_ERROR"),
-						Data:    err,
+						Message: err.(error).Error(),
+						Data:    "",
 					}
 					api.ErrorResponse(responseData, writer)
 					return
@@ -95,8 +95,8 @@ func HandleGroups(groups []register.Group, router *mux.Router) {
 					if err := validateRequest(validation, request); err != nil {
 						responseData := api.Response{
 							Status:  api.Status("VALIDATION_ERROR"),
-							Message: api.StatusMessage("VALIDATION_ERROR"),
-							Data:    err,
+							Message: err.(error).Error(),
+							Data:    "",
 						}
 						api.ErrorResponse(responseData, writer)
 						return
@@ -112,8 +112,8 @@ func HandleGroups(groups []register.Group, router *mux.Router) {
 					if err := validateRequest(validation, request); err != nil {
 						responseData := api.Response{
 							Status:  api.Status("VALIDATION_ERROR"),
-							Message: api.StatusMessage("VALIDATION_ERROR"),
-							Data:    err,
+							Message: err.(error).Error(),
+							Data:    "",
 						}
 						api.ErrorResponse(responseData, writer)
 						return
